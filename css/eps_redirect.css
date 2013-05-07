@@ -23,11 +23,13 @@ h2.eps-title {
     width: 64px; height: 64px; float: left; margin-right: 12px; margin-top: 8px;
 }
 
-#eps-redirect-entries { margin-top: 32px; padding: 12px; border: 1px solid #d6d6d6; box-shadow: 1px 1px 6px #f4f4f4; }
+
+#eps-redirect-entries { margin-top: 32px; padding: 12px; border: 1px solid #d6d6d6; box-shadow: 1px 1px 6px #f4f4f4; min-width: 810px; }
 #eps-redirect-entries h3 { margin: 8px; font-size: 20px; font-weight: 100; border-bottom: 1px solid #eeeeee; padding-bottom: 12px; }
 
 tr.redirect-entry td, tr.redirect-entry th { padding: 6px 8px; }
-
+.eps-request-url {  }
+.eps-redirect-url { width: 20em;  }
 /*----------------------------------------------------------*/
 /*---------------------- notifications ---------------------*/
 /*----------------------------------------------------------*/

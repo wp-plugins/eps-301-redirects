@@ -15,7 +15,7 @@
  *
  * @package    EPS 301 Redirects
  * @author     Shawn Wernig ( shawn@eggplantstudios.ca )
- * @version    1.0
+ * @version    1.2
  */
 
  
@@ -23,15 +23,14 @@
 Plugin Name: Eggplant 301 Redirects
 Plugin URI: http://www.eggplantstudios.ca
 Description: Create your own 301 redirects using this powerful plugin.
-Version: 1.0
+Version: 1.2
 Author: Shawn Wernig http://www.eggplantstudios.ca
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
-define('WP_DEBUG', true);
 define ( 'EPS_REDIRECT_PATH', plugin_dir_path(__FILE__) );
 define ( 'EPS_REDIRECT_URL', plugin_dir_url( __FILE__ ) );
-define ( 'EPS_REDIRECT_VERSION', 1);
+define ( 'EPS_REDIRECT_VERSION', 1.2);
 
 register_activation_hook(__FILE__, array('EPS_Redirects', 'eps_redirect_activation'));
 register_deactivation_hook(__FILE__, array('EPS_Redirects', 'eps_redirect_deactivation'));
@@ -169,7 +168,7 @@ class EPS_Redirects {
                 echo self::do_inputs();
                 echo self::get_blank_entry();
                 ?>
-                <tr><td colspan="2"><a class="eps-text-link new" href="#" id="eps-redirect-add">+ Add New</a></td></tr>
+                <tr><td colspan="2"><a class="eps-text-link new" href="#" id="eps-redirect-add">+ Add Empty</a></td></tr>
             </table>
             <hr class="eps-divider">
             <p class="submit">
@@ -237,10 +236,10 @@ class EPS_Redirects {
 
             $html .= '
             <tr class="redirect-entry '.$class.'">
-                <td><span class="eps-grey-text">'.get_bloginfo('home').'/&nbsp;</span><input type="text" name="'.self::$option_slug.'[from][]" value="'. $from .'" > &rarr;</td>
+                <td><span class="eps-grey-text">'.get_bloginfo('home').'/&nbsp;</span><input class="eps-request-url" type="text" name="'.self::$option_slug.'[from][]" value="'. $from .'" > &rarr;</td>
                 
                 <td>
-                    <input type="text" name="'.self::$option_slug.'[to][]"  value="'.esc_url( $to ).'"  style="width:30em;" >
+                    <input type="text" class="eps-redirect-url" name="'.self::$option_slug.'[to][]"  value="'.esc_url( $to ).'" >
                     <span class="eps-text-link eps-notification-area">'.eps_prettify($response_code).'</span>
                     <a class="eps-text-link" href="'.$to.'" target="_blank">View</a>
                     <a class="eps-text-link remove" href="#" class="eps-redirect-remove">&times;</a>
@@ -263,7 +262,7 @@ class EPS_Redirects {
      */
     public static function get_blank_entry() {
         return '<tr class="redirect-entry">
-                    <td><span class="eps-grey-text">'.get_bloginfo('home').'/&nbsp;</span><input type="text" name="'.self::$option_slug.'[from][]" value="" > &rarr;</td>
+                    <td><span class="eps-grey-text">'.get_bloginfo('home').'/&nbsp;</span><input class="eps-request-url" type="text" name="'.self::$option_slug.'[from][]" value="" > &rarr;</td>
                     <td>'.self::get_type_select().'</td>
                 </tr>';
     }
@@ -295,7 +294,7 @@ class EPS_Redirects {
         $html .= '</select>';
         
         // The default input, javascript will populate this input with the final URL for submission.
-        $html .= '<input class="eps-redirect-url" type="text" name="'.self::$option_slug.'[to][]"  value="" style="width:30em;" placeholder="http://www.yoursite.com"/>';
+        $html .= '<input class="eps-redirect-url" type="text" name="'.self::$option_slug.'[to][]"  value="" placeholder="http://www.yoursite.com"/>';
         
         // Get all the post type select boxes.
         foreach ($post_types as $post_type )
