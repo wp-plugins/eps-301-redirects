@@ -15,7 +15,7 @@
  *
  * @package    EPS 301 Redirects
  * @author     Shawn Wernig ( shawn@eggplantstudios.ca )
- * @version    1.2
+ * @version    1.3
  */
 
  
@@ -23,11 +23,12 @@
 Plugin Name: Eggplant 301 Redirects
 Plugin URI: http://www.eggplantstudios.ca
 Description: Create your own 301 redirects using this powerful plugin.
-Version: 1.2
+Version: 1.3
 Author: Shawn Wernig http://www.eggplantstudios.ca
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
+
 define ( 'EPS_REDIRECT_PATH', plugin_dir_path(__FILE__) );
 define ( 'EPS_REDIRECT_URL', plugin_dir_url( __FILE__ ) );
 define ( 'EPS_REDIRECT_VERSION', 1.2);
@@ -106,7 +107,7 @@ class EPS_Redirects {
         // Get current url
         $url_request = self::get_url();
         
-        foreach ($redirects as $to => $from ) {
+        foreach ($redirects as $from => $to ) {
 
             if( rtrim($url_request,'/') == self::format_from_url($from) ) {
                 // Match, this needs to be redirected
@@ -207,11 +208,13 @@ class EPS_Redirects {
             $to = filter_var( $to, FILTER_SANITIZE_URL);
             $from = filter_var( $from, FILTER_SANITIZE_URL);
             
+            if( empty($to) ) $to = home_url() . '/'; // default
+            
             // If this is a valid entry, add it to the save array.
-            if ( !empty($to) && !empty($from))  $redirects[$to] =  $from;
+            if ( !empty($from)) $redirects[$from] = $to;
        }
        // If we then have a valid array - save
-       if (!empty( $redirects) ) update_option( self::$option_slug, $redirects );
+       update_option( self::$option_slug, $redirects );
        
     }
     
@@ -229,9 +232,8 @@ class EPS_Redirects {
         $redirects = get_option( self::$option_slug );
         if (empty($redirects)) return false;
         
-        foreach ($redirects as $to => $from ) {
-            $response_code = self::get_response( self::format_from_url($from) );
-            
+        foreach ($redirects as $from => $to ) {
+            $response_code = self::get_response( self::format_from_url( $from ) );
             $class = ( $response_code == 301 ) ? 'valid' : 'invalid';
 
             $html .= '
@@ -305,6 +307,47 @@ class EPS_Redirects {
         return $html;
     }
     
+    
+    
+     /**
+     * 
+     * GET_PARENT_INDEX
+     * 
+     * Scans a custom array of posts to find a parent's position in the array. Used in GET_POST_TYPE_SELECT
+     * 
+     * @return html string
+     * @param $post_type = the post type slug.
+     * @author epstudios
+     *      
+     */
+    function find_parent_index( $id, $entries ){
+        foreach($entries as $k => $entry ) {
+            //print_r($entry); echo '<br>';
+            if ( $entry->ID == $id ) return( $k );
+        }
+        return false;
+    }
+    /**
+     * 
+     * GET_PARENT_INDEX
+     * 
+     * Scans a custom array of posts to find a parent's position in the array. Used in GET_POST_TYPE_SELECT
+     * 
+     * @return html string
+     * @param $post_type = the post type slug.
+     * @author epstudios
+     *      
+     */
+    function get_post_depth( $id ){
+        global $wpdb;
+        $depth = 0;
+        $parent_id = $id;
+        while ($parent_id > 0) {
+            $parent_id = $wpdb->get_var( "SELECT post_parent FROM $wpdb->posts WHERE ID = $parent_id" );
+            $depth ++;
+        }
+        return $depth;
+    }
     /**
      * 
      * GET_POST_TYPE_SELECT
@@ -319,13 +362,29 @@ class EPS_Redirects {
      */
     private function get_post_type_select( $post_type ){
         global $wpdb;
-        $entries = $wpdb->get_results("SELECT ID, post_title 
+        $entries = $wpdb->get_results("SELECT ID, post_title, post_parent 
                     FROM $wpdb->posts
                     WHERE post_status = 'publish' 
-                    AND post_type = '$post_type'"); 
+                    AND post_type = '$post_type' 
+                    ORDER BY post_parent, post_title DESC"); 
                     
-        if (!$entries) return false; //
-        
+                    // IMPORTANT: in order for this to work we have to order by post_parent.
+                    
+        if (!$entries) return false;
+
+        // Visibly separate heirarchical posts.
+        foreach($entries as $k => $entry ) {
+           
+            if ( $entry->post_parent > 0 ) {
+                $depth = self::get_post_depth( $entry->post_parent );
+                $entry->post_title = '&nbsp;' . str_repeat("-", $depth). ' ' . $entry->post_title;
+                
+                $parent_index = self::find_parent_index( $entry->post_parent, $entries );
+                self::move_element($entries, $k, $parent_index + 1);
+            }
+        }
+
+       
         // Start the select.
         $html = '<select class="'.$post_type.' url-selector" style="display:none;">';
         $html .= '<option value="" selected default>...</option>';
@@ -346,6 +405,11 @@ class EPS_Redirects {
         }
         $html .= '</select>';
         return $html;
+    }
+    
+    function move_element(&$array, $index, $new_index) {
+        $moving = array_splice($array, $index, 1);
+        array_splice($array, $new_index, 0, $moving);
     }
     
     
