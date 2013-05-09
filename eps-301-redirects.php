@@ -15,7 +15,7 @@
  *
  * @package    EPS 301 Redirects
  * @author     Shawn Wernig ( shawn@eggplantstudios.ca )
- * @version    1.3.3
+ * @version    1.3.4
  */
 
  
@@ -23,7 +23,7 @@
 Plugin Name: Eggplant 301 Redirects
 Plugin URI: http://www.eggplantstudios.ca
 Description: Create your own 301 redirects using this powerful plugin.
-Version: 1.3.3
+Version: 1.3.4
 Author: Shawn Wernig http://www.eggplantstudios.ca
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -31,7 +31,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 define ( 'EPS_REDIRECT_PATH', plugin_dir_path(__FILE__) );
 define ( 'EPS_REDIRECT_URL', plugin_dir_url( __FILE__ ) );
-define ( 'EPS_REDIRECT_VERSION', '1.3.3');
+define ( 'EPS_REDIRECT_VERSION', '1.3.4');
 
 register_activation_hook(__FILE__, array('EPS_Redirects', 'eps_redirect_activation'));
 register_deactivation_hook(__FILE__, array('EPS_Redirects', 'eps_redirect_deactivation'));
@@ -214,6 +214,7 @@ class EPS_Redirects {
             </table>
             <hr class="eps-divider">
             <p class="submit">
+                <?php wp_nonce_field('eps_redirect_nonce', 'eps_redirect_nonce_submit');   ?>
                 <input type="submit" name="eps_redirect_submit" id="submit" class="button button-primary" value="Save Changes"/>
             </p>
         </form>
