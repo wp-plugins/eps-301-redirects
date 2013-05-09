@@ -4,7 +4,7 @@ Donate link: none
 Tags: 301 redirects, redirects
 Requires at least: 3.0.1
 Tested up to: 3.5
-Stable tag: 1.3.1
+Stable tag: 1.3.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -75,6 +75,10 @@ Click the small X beside the redirect you wish to remove. Save changes.
 
 == Changelog ==
 
+= 1.3.3 =
+* Fixed major problem when switching from 1.2 to 1.3+
+
+
 = 1.3.1 =
 * Added hierarchy to heirarchical post type selects.
 
@@ -92,6 +96,9 @@ Click the small X beside the redirect you wish to remove. Save changes.
 * Release.
 
 == Upgrade Notice ==
+
+= 1.3.3 =
+Compatibility update for users upgrading from 1.2 to 1.3+ - Update ASAP.
 
 = 1.3.1 =
 Functionality update, Cosmetic.

@@ -15,7 +15,7 @@
  *
  * @package    EPS 301 Redirects
  * @author     Shawn Wernig ( shawn@eggplantstudios.ca )
- * @version    1.3.1
+ * @version    1.3.3
  */
 
  
@@ -23,7 +23,7 @@
 Plugin Name: Eggplant 301 Redirects
 Plugin URI: http://www.eggplantstudios.ca
 Description: Create your own 301 redirects using this powerful plugin.
-Version: 1.3.1
+Version: 1.3.3
 Author: Shawn Wernig http://www.eggplantstudios.ca
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -31,7 +31,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 define ( 'EPS_REDIRECT_PATH', plugin_dir_path(__FILE__) );
 define ( 'EPS_REDIRECT_URL', plugin_dir_url( __FILE__ ) );
-define ( 'EPS_REDIRECT_VERSION', 1.2);
+define ( 'EPS_REDIRECT_VERSION', '1.3.3');
 
 register_activation_hook(__FILE__, array('EPS_Redirects', 'eps_redirect_activation'));
 register_deactivation_hook(__FILE__, array('EPS_Redirects', 'eps_redirect_deactivation'));
@@ -49,6 +49,7 @@ class EPS_Redirects {
         if(is_admin()){
             add_action('admin_menu', array($this, 'add_plugin_page'));
             add_action('admin_init', array($this, '_save'));
+            add_action('admin_init', array($this, 'check_version'));
             add_action('wp_ajax_eps_redirect_get_new_entry',  array($this, 'ajax_get_blank_entry') ); 
             add_action('init', array($this, 'enqueue_resources'));
             add_action('admin_footer_text',  array($this, 'set_ajax_url'));
@@ -58,7 +59,48 @@ class EPS_Redirects {
     }
     
     public static function eps_redirect_activation() {}
-    public static function eps_redirect_deactivation() {}
+    public static function eps_redirect_deactivation() {
+            update_option( self::$option_slug, null );
+            update_option( 'eps_redirects_version', null );        
+    }
+    
+    
+     /**
+     * 
+     * CHECK VERSION
+     * 
+     * This function will check the current version and do any fixes required
+     * 
+     * @return html string
+     * @author epstudios
+     *      
+     */
+    public function check_version() {
+        $version = get_option( 'eps_redirects_version' );
+        
+        if ( !isset($version) || empty( $version ) ) {
+            // no version is set. versions started being stored at 1.3.1
+            // because in 1.3.1 we did a big database storage change, we need to fix old versions storage
+
+            $redirects = get_option( self::$option_slug );
+            if (empty($redirects)) return false; // no redirects anyways, so dont do anything.
+
+            foreach ($redirects as $to => $from ) {
+                $new_redirects[$from] = $to;
+            }
+            update_option( self::$option_slug, $new_redirects );
+        }
+        
+        switch( $version ) {
+            case '1.3.2':
+                // do stuff
+            default:
+                break;   
+        }
+        update_option( 'eps_redirects_version', EPS_REDIRECT_VERSION );
+        return EPS_REDIRECT_VERSION;
+    }
+    
     
     /**
      * 
@@ -172,7 +214,6 @@ class EPS_Redirects {
             </table>
             <hr class="eps-divider">
             <p class="submit">
-                <?php wp_nonce_field('eps_redirect_nonce', 'eps_redirect_nonce_submit');   ?>
                 <input type="submit" name="eps_redirect_submit" id="submit" class="button button-primary" value="Save Changes"/>
             </p>
         </form>
@@ -321,7 +362,6 @@ class EPS_Redirects {
      */
     function find_parent_index( $id, $entries ){
         foreach($entries as $k => $entry ) {
-            //print_r($entry); echo '<br>';
             if ( $entry->ID == $id ) return( $k );
         }
         return false;
