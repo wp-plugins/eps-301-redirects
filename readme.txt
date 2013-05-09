@@ -75,7 +75,7 @@ Click the small X beside the redirect you wish to remove. Save changes.
 
 == Changelog ==
 
-= 1.3.3 =
+= 1.3.4 =
 * Fixed nonce validation problem which would prevent saving of new redirects. Special Thanks to Bruce Zlotowitz for all his testing!
 
 = 1.3.3 =
@@ -100,7 +100,7 @@ Click the small X beside the redirect you wish to remove. Save changes.
 
 == Upgrade Notice ==
 
-= 1.3.3 =
+= 1.3.4 =
 Fixed a bug when saving new redirects.
 
 = 1.3.3 =
