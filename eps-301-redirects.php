@@ -214,6 +214,7 @@ class EPS_Redirects {
             </table>
             <hr class="eps-divider">
             <p class="submit">
+                <?php wp_nonce_field('eps_redirect_nonce', 'eps_redirect_nonce_submit');   ?>
                 <input type="submit" name="eps_redirect_submit" id="submit" class="button button-primary" value="Save Changes"/>
             </p>
         </form>
