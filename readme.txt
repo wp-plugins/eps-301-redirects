@@ -4,7 +4,7 @@ Donate link: none
 Tags: 301 redirects, redirects
 Requires at least: 3.0.1
 Tested up to: 3.5
-Stable tag: 1.3
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -75,8 +75,12 @@ Click the small X beside the redirect you wish to remove. Save changes.
 
 == Changelog ==
 
+= 1.3.1 =
+* Added hierarchy to heirarchical post type selects.
+
+
 = 1.3 =
-Fixed a bug where duplicate urls were being overwritten, fixed a bug where you could not completely remove all redirects.
+* Fixed a bug where duplicate urls were being overwritten, fixed a bug where you could not completely remove all redirects.
 
 = 1.2 =
 * Fixed some little bugs.
@@ -89,6 +93,8 @@ Fixed a bug where duplicate urls were being overwritten, fixed a bug where you c
 
 == Upgrade Notice ==
 
+= 1.3.1 =
+Functionality update, Cosmetic.
 
 = 1.3 =
 Bug fixes; Update ASAP.

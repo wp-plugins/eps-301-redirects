@@ -15,7 +15,7 @@
  *
  * @package    EPS 301 Redirects
  * @author     Shawn Wernig ( shawn@eggplantstudios.ca )
- * @version    1.3
+ * @version    1.3.1
  */
 
  
@@ -23,7 +23,7 @@
 Plugin Name: Eggplant 301 Redirects
 Plugin URI: http://www.eggplantstudios.ca
 Description: Create your own 301 redirects using this powerful plugin.
-Version: 1.3
+Version: 1.3.1
 Author: Shawn Wernig http://www.eggplantstudios.ca
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -73,7 +73,6 @@ class EPS_Redirects {
     public function enqueue_resources(){
         wp_enqueue_script('jquery');
         wp_enqueue_script('eps_redirect_script', EPS_REDIRECT_URL .'/js/scripts.js');
-        
         wp_enqueue_style('eps_redirect_styles', EPS_REDIRECT_URL .'css/eps_redirect.css');
     }
     
@@ -348,6 +347,7 @@ class EPS_Redirects {
         }
         return $depth;
     }
+    
     /**
      * 
      * GET_POST_TYPE_SELECT
@@ -366,25 +366,35 @@ class EPS_Redirects {
                     FROM $wpdb->posts
                     WHERE post_status = 'publish' 
                     AND post_type = '$post_type' 
-                    ORDER BY post_parent, post_title DESC"); 
+                    ORDER BY  post_title ASC"); 
                     
-                    // IMPORTANT: in order for this to work we have to order by post_parent.
                     
         if (!$entries) return false;
 
-        // Visibly separate heirarchical posts.
+        // create heirarchy
+        
+        // get depths
+        $max_depth = 0;
         foreach($entries as $k => $entry ) {
-           
-            if ( $entry->post_parent > 0 ) {
-                $depth = self::get_post_depth( $entry->post_parent );
-                $entry->post_title = '&nbsp;' . str_repeat("-", $depth). ' ' . $entry->post_title;
-                
-                $parent_index = self::find_parent_index( $entry->post_parent, $entries );
-                self::move_element($entries, $k, $parent_index + 1);
+            $entry->depth = self::get_post_depth( $entry->post_parent );
+            if($entry->depth > $max_depth)  $max_depth = $entry->depth;
+        }
+        
+        // Nest arrays as parent >> children
+        for( $i = $max_depth; $i >= 0; $i -- ) {
+            foreach( $entries as $k => $entry ) {
+                if ( $entry->depth == $i ) {
+                    if ( $entry->post_parent > 0 ) {
+                    $entry->post_title = '&nbsp;' . str_repeat("-", $depth). ' ' . $entry->post_title;
+                    $parent_index = self::find_parent_index( $entry->post_parent, $entries );
+                    
+                    $entries[$parent_index]->children[] = $entry;
+                    unset($entries[$k]);
+                    }
+                }
             }
         }
 
-       
         // Start the select.
         $html = '<select class="'.$post_type.' url-selector" style="display:none;">';
         $html .= '<option value="" selected default>...</option>';
@@ -401,17 +411,22 @@ class EPS_Redirects {
         
         // Get all entries and insert them as options.
         foreach ($entries as $entry ) {
-          $html .= '<option value="'.get_permalink($entry->ID).'">'. $entry->post_title. '</option>';
+           $html .= self::do_post_heirarchy_selects( $entry );
         }
         $html .= '</select>';
         return $html;
     }
     
-    function move_element(&$array, $index, $new_index) {
-        $moving = array_splice($array, $index, 1);
-        array_splice($array, $new_index, 0, $moving);
+    function do_post_heirarchy_selects( $entry ) {
+         $html .= '<option value="'.get_permalink($entry->ID).'">'. str_repeat("-", $entry->depth) . $entry->post_title . '</option>';
+            
+            if(  isset( $entry->children ) && !empty(  $entry->children ) ) {
+                foreach ($entry->children as $child ) {
+                    $html .= self::do_post_heirarchy_selects($child);
+                }
+            }
+        return $html;
     }
-    
     
     /**
      * 
