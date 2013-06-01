@@ -77,7 +77,7 @@ Click the small X beside the redirect you wish to remove. Save changes.
 == Changelog ==
 
 = 1.4.0 =
-* Performance updates, added a new 'Settings' page.
+* Performance updates, added a new 'Settings' page. 
 
 = 1.3.5 =
 * Fixed a bug with spaces in the url. Added ease of use visual aids.
