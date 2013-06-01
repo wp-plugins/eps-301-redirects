@@ -15,7 +15,7 @@
  *
  * @package    EPS 301 Redirects
  * @author     Shawn Wernig ( shawn@eggplantstudios.ca )
- * @version    1.3.5
+ * @version    1.4.0
  */
 
  
@@ -23,7 +23,7 @@
 Plugin Name: Eggplant 301 Redirects
 Plugin URI: http://www.eggplantstudios.ca
 Description: Create your own 301 redirects using this powerful plugin.
-Version: 1.3.5
+Version: 1.4.0
 Author: Shawn Wernig http://www.eggplantstudios.ca
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -31,7 +31,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 define ( 'EPS_REDIRECT_PATH', plugin_dir_path(__FILE__) );
 define ( 'EPS_REDIRECT_URL', plugin_dir_url( __FILE__ ) );
-define ( 'EPS_REDIRECT_VERSION', '1.3.5');
+define ( 'EPS_REDIRECT_VERSION', '1.4.0');
 
 register_activation_hook(__FILE__, array('EPS_Redirects', 'eps_redirect_activation'));
 register_deactivation_hook(__FILE__, array('EPS_Redirects', 'eps_redirect_deactivation'));
@@ -60,7 +60,7 @@ class EPS_Redirects {
     
     public static function eps_redirect_activation() {}
     public static function eps_redirect_deactivation() {
-            update_option( self::$option_slug, null );
+            //update_option( self::$option_slug, null );
             update_option( 'eps_redirects_version', null );        
     }
     
@@ -147,7 +147,7 @@ class EPS_Redirects {
             
         // Get current url
         $url_request = self::get_url();
-        
+
         foreach ($redirects as $from => $to ) {
             $from = urldecode($from);
             $to = urldecode($to);
@@ -198,37 +198,7 @@ class EPS_Redirects {
      *      
      */
     public function do_admin_page(){
-    ?>
-    <div class="wrap">
-        <header id="eps-header">
-        <div id="icon-eggplant">&nbsp;</div>
-        <h2 class="eps-title"><?php echo self::$page_title; ?></h2>         
-        </header>
-        
-        <form method="post" action="">
-            <table id="eps-redirect-entries">
-                <tr>
-                    <td>
-                        <h3>Request URL</h3>
-                    </td>
-                    <td>
-                        <h3>Redirect to URL</h3>
-                    </td>
-                </tr>
-                <?php
-                echo self::do_inputs();
-                echo self::get_blank_entry();
-                ?>
-                <tr><td colspan="2"><a class="eps-text-link new" href="#" id="eps-redirect-add">+ Add Empty</a></td></tr>
-            </table>
-            <hr class="eps-divider">
-            <p class="submit">
-                <?php wp_nonce_field('eps_redirect_nonce', 'eps_redirect_nonce_submit');   ?>
-                <input type="submit" name="eps_redirect_submit" id="submit" class="button button-primary" value="Save Changes"/>
-            </p>
-        </form>
-    </div>
-    <?php
+        include ( EPS_REDIRECT_PATH . 'templates/admin.php'  );
     }
     
     /**
@@ -243,11 +213,17 @@ class EPS_Redirects {
      */
     public function _save(){
        
-       // Check submitted values, and nonce.
-       if ( !isset( $_POST['eps_redirect_submit'] ) 
-                    || !isset( $_POST[self::$option_slug] ) 
-                    || !wp_verify_nonce( $_POST['eps_redirect_nonce_submit'], 'eps_redirect_nonce') )  return false;
-       
+        if ( isset( $_POST['eps_redirect_submit'] ) && wp_verify_nonce( $_POST['eps_redirect_nonce_submit'], 'eps_redirect_nonce') ) 
+             $this->_save_redirects();
+
+       if ( isset( $_POST['eps_redirect_settings_submit'] ) && wp_verify_nonce( $_POST['eps_redirect_setting_nonce_submit'], 'eps_redirect_setting_nonce') )
+            $this->_save_settings();
+    }
+    
+    private function _save_settings() {
+        update_option( 'eps_redirect_settings', $_POST['eps_redirect_settings'] );
+    }
+    private function _save_redirects() {
        $total_redirects = count( $_POST[self::$option_slug]['to'] ); 
        $redirects = array();
        
@@ -268,7 +244,6 @@ class EPS_Redirects {
        }
        // If we then have a valid array - save
        update_option( self::$option_slug, $redirects );
-       
     }
     
     /**
@@ -283,32 +258,32 @@ class EPS_Redirects {
      */
     public function do_inputs(){
         $redirects = get_option( self::$option_slug );
+        
         if (empty($redirects)) return false;
         
         foreach ($redirects as $from => $to ) {
             $dfrom = urldecode($from);
             $dto = urldecode($to);  
             
-            $redirect_response_code = self::get_response( self::format_from_url( $from ) );
-            $redirect_class = ( $redirect_response_code == 301 ) ? 'valid' : 'invalid';
             
-            $destination_response_code = self::get_response( self::url_esc_spaces( $dto ) );
-            $destination_class = ( $destination_response_code == 200 ) ? 'valid' : 'invalid';
                 
             $html .= '
             <tr class="redirect-entry">
                 <td><span class="eps-grey-text">'.get_bloginfo('home').'/&nbsp;</span><input class="eps-request-url" type="text" name="'.self::$option_slug.'[from][]" value="'. $dfrom .'" > &rarr;</td>
                 <td>
-                    <input type="text" class="eps-redirect-url" name="'.self::$option_slug.'[to][]"  value="'.$dto.'" >
-                    <span class="eps-text-link eps-notification-area '.$redirect_class.'">'.eps_prettify($redirect_response_code).'</span> &rarr;
-                    <span class="eps-text-link eps-notification-area '.$destination_class.'">'.eps_prettify($destination_response_code).'</span>
-                    <a class="eps-text-link" href="'.self::format_from_url( $from ).'" target="_blank">Test</a>
+                    <input type="text" class="eps-redirect-url" name="'.self::$option_slug.'[to][]"  value="'.$dto.'" >';
+                    
+            $html .= $this->get_testing_results($from, $dto);      
+                    
+            $html .='<a class="eps-text-link" href="'.self::format_from_url( $from ).'" target="_blank">Test</a>
                     <a class="eps-text-link remove" href="#" class="eps-redirect-remove">&times;</a>
                 </td>
             </tr>';
         }
         return $html;
     }
+
+    
     private static function url_esc_spaces( $url ) {
         return str_replace(' ', '%20', $url);
     }
@@ -357,7 +332,7 @@ class EPS_Redirects {
         $html .= '</select>';
         
         // The default input, javascript will populate this input with the final URL for submission.
-        $html .= '<input class="eps-redirect-url" type="text" name="'.self::$option_slug.'[to][]"  value="" placeholder="http://www.yoursite.com"/>';
+        $html .= '<input class="eps-redirect-url" type="text" name="'.self::$option_slug.'[to][]"  value="" placeholder="'.get_bloginfo('home').'"/>';
         
         // Get all the post type select boxes.
         foreach ($post_types as $post_type )
@@ -545,6 +520,34 @@ class EPS_Redirects {
     }
     
     
+    /**
+     * 
+     * 
+     * 
+     * Get the testing results for this redirect.
+     * 
+     */
+    private function get_testing_results($from, $to) {
+        $settings = get_option( 'eps_redirect_settings' );
+        $test_urls = $settings['test_urls'];
+        if( isset($test_urls) && $test_urls == 'on' ) {
+            
+                $redirect_response_code = self::get_response( self::format_from_url( $from ) );
+                $redirect_class = ( $redirect_response_code == 301 ) ? 'valid' : 'invalid';
+                
+                $destination_response_code = self::get_response( self::url_esc_spaces( $to ) );
+                $destination_class = ( $destination_response_code == 200 ) ? 'valid' : 'invalid';
+                
+                return '<span class="eps-text-link eps-notification-area '.$redirect_class.'">'.eps_prettify($redirect_response_code).'</span> &rarr;
+                          <span class="eps-text-link eps-notification-area '.$destination_class.'">'.eps_prettify($destination_response_code).'</span>';
+        }  
+    }
+    /**
+     * 
+     * 
+     * Gets the status code for this url.
+     * 
+     */
     private static function get_response( $url ) {
         // returns int responsecode, or false (if url does not exist or connection timeout occurs)
         // NOTE: could potentially take up to 0-30 seconds , blocking further code execution (more or less depending on connection, target site, and local timeout settings))
@@ -565,6 +568,32 @@ class EPS_Redirects {
             return false;
         } else {
             $code = @curl_getinfo($ch, CURLINFO_HTTP_CODE); 
+            @curl_close($ch);
+            return $code;
+        }
+        
+    }
+}
+
+
+
+/**
+ * Outputs an object or array in a readable form.
+ *
+ * @return void
+ * @param $string = the object to prettify; Typically a string.
+ * @author epstudios
+ */
+function eps_prettify( $string ) {
+    return ucwords( str_replace("_"," ",$string) );
+}
+
+
+
+
+// Run the plugin.
+$EPS_Redirects = new EPS_Redirects();
+?>_HTTP_CODE); 
             @curl_close($ch);
             return $code;
         }
