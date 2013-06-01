@@ -15,7 +15,7 @@
  *
  * @package    EPS 301 Redirects
  * @author     Shawn Wernig ( shawn@eggplantstudios.ca )
- * @version    1.3.4
+ * @version    1.3.5
  */
 
  
@@ -23,7 +23,7 @@
 Plugin Name: Eggplant 301 Redirects
 Plugin URI: http://www.eggplantstudios.ca
 Description: Create your own 301 redirects using this powerful plugin.
-Version: 1.3.4
+Version: 1.3.5
 Author: Shawn Wernig http://www.eggplantstudios.ca
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -31,7 +31,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 define ( 'EPS_REDIRECT_PATH', plugin_dir_path(__FILE__) );
 define ( 'EPS_REDIRECT_URL', plugin_dir_url( __FILE__ ) );
-define ( 'EPS_REDIRECT_VERSION', '1.3.4');
+define ( 'EPS_REDIRECT_VERSION', '1.3.5');
 
 register_activation_hook(__FILE__, array('EPS_Redirects', 'eps_redirect_activation'));
 register_deactivation_hook(__FILE__, array('EPS_Redirects', 'eps_redirect_deactivation'));
@@ -149,7 +149,9 @@ class EPS_Redirects {
         $url_request = self::get_url();
         
         foreach ($redirects as $from => $to ) {
-
+            $from = urldecode($from);
+            $to = urldecode($to);
+            
             if( rtrim($url_request,'/') == self::format_from_url($from) ) {
                 // Match, this needs to be redirected
                 header ('HTTP/1.1 301 Moved Permanently');
@@ -158,7 +160,14 @@ class EPS_Redirects {
             } 
         }
     }
-
+    private function rawurlencode_parts( $uri ) {
+            $parts = explode('/', $uri);
+            for ($i = 0; $i < count($parts); $i++) {
+              $parts[$i] = rawurlencode($parts[$i]);
+            }
+            return implode('/', $parts);
+    }
+    
     private function format_from_url( $string ) {
         $from = get_option('home') . '/' . $string;
         return rtrim($from,'/');    
@@ -174,7 +183,7 @@ class EPS_Redirects {
      *      
      */
     function get_url() {
-        $protocol = ( $_SERVER['HTTPS'] == 'on' ) ? 'https' : 'http';
+        $protocol = ( isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ) ? 'https' : 'http';
         return urldecode( $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
     }
         
@@ -243,11 +252,14 @@ class EPS_Redirects {
        $redirects = array();
        
        for($i = 0; $i < $total_redirects; $i ++) {
-            $to = trim( $_POST[self::$option_slug]['to'][$i] );
-            $from = trim( $_POST[self::$option_slug]['from'][$i] );
-            
+            $to = trim(  $_POST[self::$option_slug]['to'][$i] );
+            $to = self::rawurlencode_parts( $to );
             $to = filter_var( $to, FILTER_SANITIZE_URL);
+            
+            $from = trim( $_POST[self::$option_slug]['from'][$i] );
+            $from = self::rawurlencode_parts( $from );
             $from = filter_var( $from, FILTER_SANITIZE_URL);
+            $from = ltrim($from, '/');
             
             if( empty($to) ) $to = home_url() . '/'; // default
             
@@ -274,24 +286,32 @@ class EPS_Redirects {
         if (empty($redirects)) return false;
         
         foreach ($redirects as $from => $to ) {
-            $response_code = self::get_response( self::format_from_url( $from ) );
-            $class = ( $response_code == 301 ) ? 'valid' : 'invalid';
-
-            $html .= '
-            <tr class="redirect-entry '.$class.'">
-                <td><span class="eps-grey-text">'.get_bloginfo('home').'/&nbsp;</span><input class="eps-request-url" type="text" name="'.self::$option_slug.'[from][]" value="'. $from .'" > &rarr;</td>
+            $dfrom = urldecode($from);
+            $dto = urldecode($to);  
+            
+            $redirect_response_code = self::get_response( self::format_from_url( $from ) );
+            $redirect_class = ( $redirect_response_code == 301 ) ? 'valid' : 'invalid';
+            
+            $destination_response_code = self::get_response( self::url_esc_spaces( $dto ) );
+            $destination_class = ( $destination_response_code == 200 ) ? 'valid' : 'invalid';
                 
+            $html .= '
+            <tr class="redirect-entry">
+                <td><span class="eps-grey-text">'.get_bloginfo('home').'/&nbsp;</span><input class="eps-request-url" type="text" name="'.self::$option_slug.'[from][]" value="'. $dfrom .'" > &rarr;</td>
                 <td>
-                    <input type="text" class="eps-redirect-url" name="'.self::$option_slug.'[to][]"  value="'.esc_url( $to ).'" >
-                    <span class="eps-text-link eps-notification-area">'.eps_prettify($response_code).'</span>
-                    <a class="eps-text-link" href="'.$to.'" target="_blank">View</a>
+                    <input type="text" class="eps-redirect-url" name="'.self::$option_slug.'[to][]"  value="'.$dto.'" >
+                    <span class="eps-text-link eps-notification-area '.$redirect_class.'">'.eps_prettify($redirect_response_code).'</span> &rarr;
+                    <span class="eps-text-link eps-notification-area '.$destination_class.'">'.eps_prettify($destination_response_code).'</span>
+                    <a class="eps-text-link" href="'.self::format_from_url( $from ).'" target="_blank">Test</a>
                     <a class="eps-text-link remove" href="#" class="eps-redirect-remove">&times;</a>
                 </td>
             </tr>';
         }
         return $html;
     }
-    
+    private static function url_esc_spaces( $url ) {
+        return str_replace(' ', '%20', $url);
+    }
     /**
      * 
      * GET_BLANK_ENTRY
@@ -525,27 +545,21 @@ class EPS_Redirects {
     }
     
     
-    
-    public static function test_redirect( $url ) {
-       return ( self::get_response($url) == 301 ) ? true : false;
-    }
-    
     private static function get_response( $url ) {
         // returns int responsecode, or false (if url does not exist or connection timeout occurs)
         // NOTE: could potentially take up to 0-30 seconds , blocking further code execution (more or less depending on connection, target site, and local timeout settings))
-
+        
         if( !$url || !is_string($url)) return false;
 
         $ch = @curl_init($url);
         
         if($ch === false) return false;
-        
-        
+
         @curl_setopt($ch, CURLOPT_HEADER         ,true);    // we want headers
         @curl_setopt($ch, CURLOPT_NOBODY         ,true);    // dont need body
         @curl_setopt($ch, CURLOPT_RETURNTRANSFER ,true);    // catch output (do NOT print!)
         @curl_exec($ch);
-        
+
         if( @curl_errno($ch) ) {   // should be 0
             @curl_close($ch);
             return false;

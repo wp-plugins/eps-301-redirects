@@ -45,11 +45,11 @@ tr.redirect-entry td, tr.redirect-entry th { padding: 6px 8px; }
     zoom: 1;
 }
 
-tr.redirect-entry.valid .eps-notification-area {
+.eps-notification-area.valid {
    background: #cdf2d9; color: #195b2d; border: 1px solid #587b63;
 }
 
-tr.redirect-entry.invalid .eps-notification-area {
+.eps-notification-area.invalid {
    background: #f2cdcd; color: #6a2222; border: 1px solid #935e5e;
 }
 
