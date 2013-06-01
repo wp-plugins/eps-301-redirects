@@ -35,6 +35,45 @@ jQuery(document).ready(function ($) {
        $(this).closest('tr.redirect-entry').remove();
    });
    
+   
+   
+   /**
+    * 
+    * 
+    * Tabs
+    */
+   $('#eps-tab-nav .eps-tab-nav-item').click(function(e){
+        //e.preventDefault();
+        var target = $(this).attr('href');
+        
+        
+        $('#eps-tabs .eps-tab').hide();
+         
+        $(target + '-pane').show().height( 'auto' );
+        
+        $('#eps-tab-nav .eps-tab-nav-item').removeClass('active');
+        $(this).addClass('active');
+        //return false;
+     });
+     
+    
+     
+     /**
+      * 
+      * 
+      * Open up the tab as per the current location
+      */
+     var hash = window.location.hash;
+     
+     if( hash ) {
+        $('#eps-tabs .eps-tab').hide();
+        $(hash+'-pane').show();
+        $('#eps-tab-nav .eps-tab-nav-item').removeClass('active');
+        $('#eps-tab-nav .eps-tab-nav-item').eq( $(hash +'-pane').index() ).addClass('active');
+     } else {
+        $('#eps-tab-nav .eps-tab-nav-item').show();  
+     }
+   
 });
 
 
