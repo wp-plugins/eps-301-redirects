@@ -9,8 +9,8 @@
  * @param array|string $args Optional. Override default arguments.
  * @return string or HTML content, if not displaying.
  */
- 
- 
+
+
 if( !function_exists('eps_dropdown_pages')) {
 function eps_dropdown_pages($args = '') {
     $defaults = array(
@@ -67,9 +67,10 @@ class EPS_Walker_PageDropdown extends Walker {
     var $tree_type = 'page';
     var $db_fields = array ('parent' => 'post_parent', 'id' => 'ID');
 
-    function start_el(&$output, $page, $depth, $args, $id = 0) {
+    function start_el(&$output, $object, $depth = 0, $args = Array(), $current_object_id = 0)
+    {
         $pad = str_repeat('&nbsp;', $depth * 3);
-        $output[$page->ID] = $pad . esc_html( apply_filters( 'list_pages', $page->post_title, $page ) );
+        $output[$object->ID] = $pad . esc_html( apply_filters( 'list_pages', $object->post_title, $object ) );
     }
 }
 }

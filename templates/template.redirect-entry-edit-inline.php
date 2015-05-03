@@ -1,18 +1,12 @@
 <?php
 /**
- * 
- * EPS 301 Redirects.
- * 
- * template.redirect-entry-edit-inline.php
- * 
+ *
  * Outputs the whole inline entry edit html. 
- * 
- * 
  *
  *
  * @package    EPS 301 Redirects
  * @author     Shawn Wernig ( shawn@eggplantstudios.ca )
- * @version    2.1.0
+ *
  */
 
 

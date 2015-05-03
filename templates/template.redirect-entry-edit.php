@@ -1,18 +1,12 @@
 <?php
 /**
  * 
- * EPS 301 Redirects.
- * 
- * template.redirect-entry-edit.php
- * 
+ *
  * Outputs the edit form for a given $redirect_id. If $redirect_id is not set, assume this is a new redirect form. 
  * 
  * 
- *
- *
  * @package    EPS 301 Redirects
  * @author     Shawn Wernig ( shawn@eggplantstudios.ca )
- * @version    2.1.0
  */
 
 $redirect = self::get_redirect( $redirect_id );

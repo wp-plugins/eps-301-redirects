@@ -39,24 +39,22 @@ jQuery(document).ready(function ($) {
    $('.eps-table').on('click', '.redirect-actions a.eps-redirect-edit', function(e){
        e.preventDefault();
        var redirect_id = $(this).data('id');
-       
        // Do the request
         $.ajax({
           type: 'POST',
           url: eps_redirect_ajax_url,
           data: {
-                      'action':             'eps_redirect_get_inline_edit_entry', 
-                      'redirect_id':        redirect_id, 
+                      'action':             'eps_redirect_get_inline_edit_entry',
+                      'redirect_id':        redirect_id
                   },
           success: function(data){
             var data = jQuery.parseJSON( data );
-            
+            console.log( data );
             $('#eps-redirect-edit').remove();
             $('tr.redirect-entry').removeClass('active');
             $('tr.redirect-entry[data-id='+data.redirect_id+']').addClass('active');
             $(data.html).insertAfter('tr.redirect-entry[data-id='+data.redirect_id+']');
             $('#eps-redirect-add').show();
-
           },
           error: function(){
             // failed request; give feedback to user
@@ -64,7 +62,8 @@ jQuery(document).ready(function ($) {
           }
         });
    });
-   
+
+
    
    
    /**
@@ -114,10 +113,20 @@ jQuery(document).ready(function ($) {
             
             $('#eps-redirect-edit').remove();
             $('tr.redirect-entry').removeClass('active');
-            if( $('tr.redirect-entry[data-id='+data.redirect_id+']').length ) {
+            if( $('tr.redirect-entry[data-id='+data.redirect_id+']').length )
+            {
                 // entry exists, so update it
-                $('tr.redirect-entry[data-id='+data.redirect_id+']').replaceWith( data.html );
-            } else {
+                if( $('tr.redirect-entry[data-status="404"]').length )
+                {
+                    $('tr.redirect-entry[data-id='+data.redirect_id+']').hide();
+                }
+                else
+                {
+                    $('tr.redirect-entry[data-id='+data.redirect_id+']').replaceWith( data.html );
+                }
+            }
+            else
+            {
                 // new entry, add it
                 $(data.html).insertAfter('tr#eps-redirect-add');
                 $('#eps-redirect-add').show();

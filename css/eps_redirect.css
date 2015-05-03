@@ -1,42 +1,57 @@
 /*----------------------------------------------------------*/
 /*--------------------- Entries Table ----------------------*/
 /*----------------------------------------------------------*/
-.eps-col1 { width: 40%; float: left; }
-.eps-col3 { width: 60%; float: left; }
-
 
 .eps-table { 
    width: 100%;
    table-layout:fixed;
-   }
+}
    
-.eps-table .eps-table tr, #eps-redirect-save tr { background: #fefefe; }
-#eps-redirect-save, .eps-table .eps-table { border: 1px solid #eeeeee;  }
+.eps-table .eps-table tr, #eps-redirect-save tr {
+    background: #fefefe;
+}
 
-#eps-redirect-entries { border: 1px solid #eeeeee; }
-.eps-table td, 
-.eps-table th { padding: 5px;  text-align: left; overflow: hidden; }
+#eps-redirect-save,
+#eps-redirect-entries,
+.eps-table .eps-table {
+    border: 1px solid #eeeeee;
+}
 
-.eps-table th { 
-    padding: 6px 10px;
-    background: #2A95C5;
-    color:#FFFFFF;
-    }
-    
+
     
 .eps-table tr {
     background: #fcfcfc;
 }
-.eps-table tr.active { display: none; }
+.eps-table tr.active {
+    display: none;
+}
+
 .eps-table.eps-table-striped tr:nth-child(even) {
     background: #fafafa;
 }
 
+.eps-table td,
+.eps-table th {
+    padding: 5px;
+    text-align: left;
+    overflow: hidden;
+}
 
-.eps-table td.redirect-hits, .eps-table th.redirect-hits { width: 26px; text-align: center; padding-left: 4px; padding-right: 4px; }
-.eps-table td.redirect-actions, .eps-table th.redirect-actions { width: 120px;  }
+.eps-table th {
+    padding: 6px 10px;
+    background: #2A95C5;
+    color:#FFFFFF;
+}
 
-
+.eps-table td.redirect-hits, .eps-table th.redirect-hits {
+    width: 26px;
+    text-align: center;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+.eps-table td.redirect-actions, .eps-table th.redirect-actions {
+    width: 120px;
+}
 
 
 /*----------------------------------------------------------*/
@@ -93,38 +108,9 @@
 }
 
 .url-input { display: inline-block; width: 350px; max-width: 100%; }
+
 select.eps-small-select { display: inline-block; } 
-    
-/*----------------------------------------------------------*/
-/*--------------------------- tabs -------------------------*/
-/*----------------------------------------------------------*/
 
-#eps-tabs {  padding: 12px 32px; border: 1px solid #d6d6d6; background: white; box-shadow: 1px 1px 6px #f4f4f4; }
-
-#eps-tab-nav { margin-top: 32px;   }
-#eps-tab-nav a, #eps-tab-nav a:link, #eps-tab-nav a:visited { 
-    display: inline-block; 
-    border: 1px solid #d6d6d6;
-    padding: 16px 32px;
-    background: #fafafa;
-    text-decoration: none;
-    font-size: 16px; font-weight: bold;
-    position: relative; bottom: 0px;
-    -webkit-transition: all 100ms;
-}
-
-#eps-tab-nav a.active, #eps-tab-nav a:hover{ 
-    background: white;
-    position: relative;
-    bottom: -1px;
-    padding: 20px 32px;
-    background: white;
-    border-bottom: none;
-}
-#eps-tabs .eps-tab { display: none; }
-#eps-tabs .eps-tab:first-child { display: block; }
-
-#eps-tabs .eps-tab hr { border-top: 1px solid #eeeeee; margin: 16px 0px; }
 
 /*----------------------------------------------------------*/
 /*--------------------------  misc  ------------------------*/
@@ -184,6 +170,52 @@ select.eps-small-select { display: inline-block; }
 }
 .eps-url .eps-url-nopadding { padding: 0px; }
 
+
+/*----------------------------------------------------------*/
+/*------------------------  upgrade  ------------------------*/
+/*----------------------------------------------------------*/
+
+.eps-redirects-big-button,
+.eps-redirects-big-button:link,
+.eps-redirects-big-button:hover
+{
+    display: block;
+    padding: 32px 16px;
+    text-align: center;
+    background: #444444;
+    color: #bbbbbb;
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    transition: all 600ms;
+}
+.eps-redirects-big-button:hover {
+    background: #333333;
+    color: #ffffff;
+}
+#eps-redirects-checklist {
+    margin-top: 16px;
+}
+#eps-redirects-checklist,
+#eps-redirects-checklist li {
+    display: block;
+    list-style: none;
+}
+#eps-redirects-checklist li
+{
+    border: 1px solid #eeeeee;
+    background: url('../images/icon-check.png') left center no-repeat;
+    padding: 16px;
+    padding-left: 72px;
+}
+#eps-redirects-checklist li > span
+{
+    border-left: 1px solid #dddddd;
+    display: inline-block;
+    padding: 16px;
+    font-size: 18px; line-height: 150%;
+}
+
 /*----------------------------------------------------------*/
 /*------------------------  donate  ------------------------*/
 /*----------------------------------------------------------*/
@@ -204,6 +236,14 @@ select.eps-small-select { display: inline-block; }
 /*------------------------  Helpers  ------------------------*/
 /*----------------------------------------------------------*/
 
+.eps-redirects-50 {
+    width: 50%;
+    margin: 0px; padding: 0px;
+    float: left;
+}
+.eps-redirects-lead {
+    font-size: 18px;
+}
 
 /* Contain floats: nicolasgallagher.com/micro-group-hack/ */ 
 .group:before, .group:after { content: ""; display: table; }
@@ -214,6 +254,13 @@ select.eps-small-select { display: inline-block; }
 .left { float: left; }
 
 .text-right { text-align: right; }
+
+.eps-redirects-fit {
+    display: block; max-width: 100%; width: 100%;
+}
+
+.padding { padding: 16px; }
+.padding-lots { padding: 32px; }
 /*----------------------------------------------------------*/
 /*--------------------  media queries  ---------------------*/
 /*----------------------------------------------------------*/

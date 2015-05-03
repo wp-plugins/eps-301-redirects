@@ -1,26 +1,19 @@
 <?php
 /**
- * 
- * EPS 301 Redirects.
- * 
- * template.redirect-entry.php
- * 
- * Outputs the redirect entry for review. This is not used to edit - merely to list them.
- * 
- * 
+ *
+ * The Redirect List Entry Template.
  *
  *
  * @package    EPS 301 Redirects
  * @author     Shawn Wernig ( shawn@eggplantstudios.ca )
- * @version    2.1.0
  */
 
- 
-$query_args = array( 'page' => self::$page_slug, 'delete_redirect' => esc_attr( $redirect->id ) );
+global $EPS_Redirects_Plugin;
+$query_args = array( 'page' => $EPS_Redirects_Plugin->config('page_slug'), 'delete_redirect' => esc_attr( $redirect->id ) );
 
 
 ?>
-<tr class="redirect-entry <?php  echo esc_attr( $redirect->status ); ?> id-<?php echo esc_attr( $redirect->id ); ?>" data-id="<?php echo esc_attr( $redirect->id ); ?>">
+<tr class="redirect-entry <?php  echo esc_attr( $redirect->status ); ?> id-<?php echo esc_attr( $redirect->id ); ?>" data-id="<?php echo esc_attr( $redirect->id ); ?>" data-status="<?php echo esc_attr( $redirect->status ); ?>">
     <td>
         <a target="_blank" class="eps-url" href="<?php bloginfo('url'); ?>/<?php echo esc_attr($dfrom); ?>" title="<?php bloginfo('url'); ?>/<?php echo esc_attr($dfrom); ?>">
             <span class="eps-url-root eps-url-startcap"><?php echo ($redirect->status == 'inactive' ) ? 'OFF': esc_attr($redirect->status); ?></span><span class="eps-url-root"><?php bloginfo('url'); ?>/</span><span class="eps-url-fragment eps-url-endcap"><?php echo esc_attr($dfrom); ?></span>
